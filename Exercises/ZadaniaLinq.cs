@@ -70,7 +70,7 @@ public sealed class ZadaniaLinq
     public IEnumerable<string> Zadanie04_PierwszyPrzedmiotAnalityczny()
     {
         var query = DaneUczelni.Przedmioty
-            .Where(p => p.Kategoria.Equals("Analyticssss"))
+            .Where(p => p.Kategoria.Equals("Analytics"))
             .Select(p=>$"{p.Nazwa},{p.DataStartu}")
             .FirstOrDefault();
         if (query != null)
@@ -95,7 +95,7 @@ public sealed class ZadaniaLinq
     public IEnumerable<string> Zadanie05_CzyIstniejeNieaktywneZapisanie()
     {
         var query = DaneUczelni.Zapisy
-            .Any(z => z.CzyAktywny.Equals(false));
+            .Any(z => !z.CzyAktywny);
         
         return new[]
         {
@@ -116,7 +116,7 @@ public sealed class ZadaniaLinq
     public IEnumerable<string> Zadanie06_CzyWszyscyProwadzacyMajaKatedre()
     {
         var query = DaneUczelni.Prowadzacy
-            .All(p => p.Katedra != null || !p.Katedra.Equals(""));
+            .All(p => p.Katedra != null && p.Katedra != string.Empty); //!string.IsNullOrEmpty(p.Katedra)
         return new[]{query.ToString()};
     }
 
@@ -147,7 +147,11 @@ public sealed class ZadaniaLinq
     /// </summary>
     public IEnumerable<string> Zadanie08_UnikalneMiastaStudentow()
     {
-        throw Niezaimplementowano(nameof(Zadanie08_UnikalneMiastaStudentow));
+        var query = DaneUczelni.Studenci
+            .Select(s => $"{s.Miasto}")
+            .Distinct()
+            .OrderBy(s => s);
+        return query;
     }
 
     /// <summary>
