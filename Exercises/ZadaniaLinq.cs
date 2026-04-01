@@ -399,10 +399,25 @@ public sealed class ZadaniaLinq
     /// </summary>
     public IEnumerable<string> Wyzwanie02_PrzedmiotyStartujaceWKwietniuBezOcenKoncowych()
     {
-        throw Niezaimplementowano(nameof(Wyzwanie02_PrzedmiotyStartujaceWKwietniuBezOcenKoncowych));
+        var query = DaneUczelni.Przedmioty
+            .Join(DaneUczelni.Zapisy,
+                p => p.Id,
+                z => z.PrzedmiotId,
+                (p, z) => new
+                {
+                    p.DataStartu,
+                    p.Nazwa,
+                    z.OcenaKoncowa
+                }
+            )
+            .Where(p => p.DataStartu.Month == 4 && p.DataStartu.Year == 2026)
+            .GroupBy(pz => pz.Nazwa)
+            .Where(pz => pz.All(z=> z.OcenaKoncowa == null))
+            .Select(pz => $"{pz.Key}");
+        return query;
     }
 
-    /// <summary>
+    /// <summary>   
     /// Wyzwanie:
     /// Oblicz średnią ocen końcowych dla każdego prowadzącego na podstawie wszystkich jego przedmiotów.
     /// Pomiń brakujące oceny, ale pozostaw samych prowadzących w wyniku.
@@ -435,7 +450,21 @@ public sealed class ZadaniaLinq
     /// </summary>
     public IEnumerable<string> Wyzwanie04_MiastaILiczbaAktywnychZapisow()
     {
-        throw Niezaimplementowano(nameof(Wyzwanie04_MiastaILiczbaAktywnychZapisow));
+        var query = DaneUczelni.Studenci
+            .Join(DaneUczelni.Zapisy,
+                s => s.Id,
+                z => z.StudentId,
+                (s, z) => new
+                {
+                    s.Miasto,
+                    z.CzyAktywny
+                })
+            .Where(z => z.CzyAktywny)
+            .GroupBy(sz => sz.Miasto)
+            .OrderByDescending(sz => sz.Count())
+            .Select(sz => $"{sz.Key},{sz.Count()}");
+        return query;
+
     }
 
     private static NotImplementedException Niezaimplementowano(string nazwaMetody)
